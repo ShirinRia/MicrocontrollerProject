@@ -1,46 +1,43 @@
-#include <Keyboard.h>
 #include <LiquidCrystal.h>
 #include <Servo.h>
 #include <Keypad.h>
-Servo myservo;
-int pos=0; // position of servo motor
+Servo myservo;//servo motor er object
 LiquidCrystal lcd(A4, A5, A3, A2, A1, A0);
 const byte rows=4;
 const byte cols=3;
- int t=0;
+int t=0;
 char key[rows][cols]={
 {'1','2','3'},
 {'4','5','6'},
 {'7','8','9'},
 {'*','0','#'}
 };
-byte rowPins[rows]={0,1,2,3};
+byte rowPins[rows]={0,1,11,3};
 byte colPins[cols]={4,5,6};
 Keypad keypad= Keypad(makeKeymap(key),rowPins,colPins,rows,cols);
 char* password="0123";
-char* pass="0124";
 int currentposition=0;
 int pirState;
+char code;
 void setup()
 {
 displayscreen();
 myservo.attach(9); //Servo motor connection
 lcd.begin(16,2);
 pinMode(8,OUTPUT);
-pinMode(12,OUTPUT);
-pinMode(7, INPUT); 
-pinMode(11, INPUT);
+pinMode(12,OUTPUT); 
+pinMode(2, INPUT);
+myservo.write(0);
 }
  
 void loop()
 {
-// flame(); 
 int l=0;
 if( currentposition==0)
 {
 displayscreen();
 }
-char code=keypad.getKey();
+code=keypad.getKey();
 if(code!=NO_KEY)
 {
 lcd.clear();
@@ -72,37 +69,28 @@ currentposition=0;
 //Function 1- OPEN THE DOOR
 void unlockdoor()
 {
-digitalWrite(12,LOW);
-delay(900);
+delay(200);
+myservo.write(90); 
 lcd.setCursor(0,0);
 lcd.println(" ");
 lcd.setCursor(1,0);
-lcd.print("Access Granted");
 digitalWrite(8,HIGH);
+lcd.print("Access Granted");
 lcd.setCursor(4,1);
 lcd.println("WELCOME!!");
-for(pos = 180; pos>=0; pos-=5) // open the door
-{
-myservo.write(pos); 
-delay(5); 
-}
-//flame();
+
 counterbeep();
 delay(1000);
-for(pos = 0; pos <= 180; pos +=5) // close the door
-{ // in steps of 1 degree
-myservo.write(pos); 
-delay(15); 
 currentposition=0; 
 lcd.clear();
 displayscreen();
 }
-} 
+ 
 //Function 2- Wrong code 
 void incorrect()
 {
-  //flame();
 delay(500);
+myservo.write(0); 
 digitalWrite(8,LOW);
 lcd.clear();
 lcd.setCursor(1,0);
@@ -116,10 +104,12 @@ lcd.clear();
 ++t;
 if(t==3){
 digitalWrite(12,HIGH);
+tone(12,1000);
+lcd.noDisplay();
 } 
 }
 
-//------------Function 4 - DISPLAY FUNCTION--------------------//
+//Function 4 - DISPLAY FUNCTION
 void displayscreen()
 {
 lcd.setCursor(0,0);
@@ -128,11 +118,11 @@ lcd.setCursor(1 ,1);
 lcd.println("TO OPEN DOOR");
 }
 
-//--------------Function 5 - Count down------------------//
+//Function 5 - Count down
 void counterbeep()
 {
-delay(500); 
-pirState = digitalRead(11);
+delay(1000); 
+pirState = digitalRead(2);
 if(pirState==LOW){
 lcd.clear();
 lcd.setCursor(2,0);
@@ -154,6 +144,7 @@ lcd.print("the room");
 delay(500);
 lcd.clear();
 lcd.setCursor(4,0);
+myservo.write(0); 
 lcd.print("LOCKED!");
 delay(300);
 }
@@ -182,7 +173,7 @@ delay(100);
 lcd.clear();
 lcd.setCursor(2,0);
 lcd.println("GET IN WITHIN:");
-delay(500);
+delay(100);
 
 lcd.setCursor(2,0);
 lcd.println("GET IN WITHIN:");
@@ -192,8 +183,7 @@ delay(100);
 lcd.clear();
 lcd.setCursor(2,0);
 lcd.println("GET IN WITHIN:");
-delay(500);
-
+delay(100);
 lcd.setCursor(2,0);
 lcd.println("GET IN WITHIN:");
 lcd.setCursor(4,1); 
@@ -202,21 +192,19 @@ delay(100);
 lcd.clear();
 lcd.setCursor(2,0);
 lcd.println("GET IN WITHIN:");
-delay(500);
-
+delay(100);
 lcd.setCursor(4,1);
 lcd.print("1");
 delay(100);
 lcd.clear();
 lcd.setCursor(2,0);
-lcd.println("GET IN WITHIN::");
-
-delay(500);
+lcd.println("GET IN WITHIN:");
+delay(100);
 delay(40);
 lcd.clear();
 lcd.setCursor(2,0);
 lcd.print("RE-LOCKING");
-delay(500);
+delay(100);
 lcd.setCursor(12,0);
 lcd.print(".");
 delay(200);
@@ -236,6 +224,7 @@ lcd.print("No one Entered");
 delay(200);
 lcd.clear();
 lcd.setCursor(2,0);
+myservo.write(0); 
 lcd.print("LOCKED!");
 delay(400);
 }
